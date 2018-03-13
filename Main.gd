@@ -50,7 +50,8 @@ func placeMark( row, col, player ):
 		winDialog.dialog_text = "The game was a draw!"
 		winDialog.show()
 	elif activePlayer == O and not winner:
-		aiPicPoint()
+		$Tween.interpolate_callback( self, 0.5 + randf(), "aiPicPoint" )
+		$Tween.start()
 
 func sumRow( rowNum ):
 	# Returns the sum of the supplied row
@@ -122,12 +123,13 @@ func checkWin():
 func onTicTacBtnPressed( button ):
 	# When a TicTacButton is pressed, it fires a signal
 	# We've registered to "respond" to that signal here.
-	print("Pressed (%d, %d)" % [button.row, button.col] )
-	
-	if board[button.row][button.col].value != 0:
-		print("Already filled")
-	else:
-		placeMark( button.row, button.col, activePlayer )
+	if activePlayer == X:
+		print("Pressed (%d, %d)" % [button.row, button.col] )
+		
+		if board[button.row][button.col].value != 0:
+			print("Already filled")
+		else:
+			placeMark( button.row, button.col, activePlayer )
 		
 
 func aiFillRow( row ):
