@@ -11,7 +11,7 @@ export(int) var col = -1
 signal custom_pressed(button)
 
 func _ready():
-	pass
+	reset()
 
 func setX( val=1 ):
 	value = val;

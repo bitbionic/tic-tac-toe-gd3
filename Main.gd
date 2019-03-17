@@ -1,11 +1,15 @@
 extends Control
 
-onready var board = [ 	[$Container/TicTacButton1, $Container/TicTacButton2, $Container/TicTacButton3],
-						[$Container/TicTacButton4, $Container/TicTacButton5, $Container/TicTacButton6],
-						[$Container/TicTacButton7, $Container/TicTacButton8, $Container/TicTacButton9], ]
+onready var board = [ [$TicTacButton1, $TicTacButton2, $TicTacButton3],
+					  [$TicTacButton4, $TicTacButton5, $TicTacButton6],
+					  [$TicTacButton7, $TicTacButton8, $TicTacButton9], 
+					]
 
 onready var winDialog = $WinDialog
 
+# We use these player values for two purposes
+# To distiguish the "activePlayer", and to make
+# scoring easy.
 const X = 1
 const O = 10
 
@@ -14,17 +18,19 @@ var currentRound = 0
 var winner = false
 
 func _ready():
+	# Setup our playing board
 	for row in board:
 		for btn in row:
 			btn.connect( "custom_pressed", self, "onTicTacBtnPressed" )
 	
+	# Setup our dialog box
 	var cancelBtn = winDialog.get_cancel()
 	cancelBtn.set_text("Quit")
 	cancelBtn.connect("pressed", self, "onQuit")
 	winDialog.get_ok().set_text("Play Again!")
-#	winDialog.show()
 
 func clearBoard():
+	# Resets the game for a new round
 	currentRound = 0
 	winner = false
 	activePlayer = X
@@ -34,6 +40,13 @@ func clearBoard():
 			btn.reset()
 
 func placeMark( row, col, player ):
+	# This function places a mark on the board - by placing
+	# a mark we are setting the value of that button to
+	# the player values assigned at the beginning of this
+	# script.
+	
+	# Note after setting the board value, we swap the 
+	# active player.
 	if player == X:
 		board[row][col].setX(X)
 		activePlayer = O
@@ -41,15 +54,23 @@ func placeMark( row, col, player ):
 		board[row][col].setO(O)
 		activePlayer = X
 	
+	# After setting the values we increase the round number
+	# to the next turn.
 	currentRound += 1
 	
+	# Now we check for win conditions.
 	checkWin()
-		
+	
+	# If no win then there are two more conditions - 
+	#  1 - we're out of turns,
+	#  2 - it's the next player turn
 	if currentRound == 9:
-		winDialog.window_title = "Draw!!"
-		winDialog.dialog_text = "The game was a draw!"
-		winDialog.show()
+		showWinDialog("Draw!!", "The game was a draw!")
+		
 	elif activePlayer == O and not winner:
+		# We use the tween to "fake" the computer thinking. I probably
+		# could have used a timer instead, but the interpolate_callback
+		# method makes it simple to provide a callback to the AI.
 		$Tween.interpolate_callback( self, 0.5 + randf(), "aiPicPoint" )
 		$Tween.start()
 
@@ -85,12 +106,21 @@ func sumDiag_2():
 	return sum
 
 func showWinDialog( title, text ):
+	# A simple helper method to display the dialog along with whatever
+	# text and title supplied by the calling function
 	winner = true
 	winDialog.window_title = title
 	winDialog.dialog_text = text
 	winDialog.show()
 
 func checkWin():
+	# Checks the possible win states of the game
+	# NOTE: Since we setup the player values as
+	#       1 for player X and 10 for player O
+	#       we can check the sum along the rows
+	#       and diagonals. A sum of 3 means player X
+	#       owns it while a sum of 30 means player O
+	#       owns it.
 	var row = 0
 	var col = 0
 	var d1 = 0
@@ -133,21 +163,29 @@ func onTicTacBtnPressed( button ):
 		
 
 func aiFillRow( row ):
+	# AI tries to fill the supplied row with the first available
+	# open button.
 	for column in range(3):
 		if board[ row ][ column ].value == 0:
 			placeMark( row, column, activePlayer )
 
 func aiFillCol( col ):
+	# AI tries to fill the supplied column with the first available
+	# open button.
 	for row in range(3):
 		if board[ row ][ col ].value == 0:
 			placeMark( row, col, activePlayer )
 
 func aiFillDiag_1():
+	# AI tries to fill the supplied diagonal with the first available
+	# open button.
 	for idx in range(3):
 		if board[idx][idx].value == 0:
 			placeMark( idx, idx, activePlayer )
 
 func aiFillDiag_2():
+	# AI tries to fill the supplied diagonal with the first available
+	# open button.
 	for idx in range(3):
 		if board[idx][2-idx].value == 0:
 			placeMark( idx, 2-idx, activePlayer )
@@ -176,6 +214,10 @@ func aiPicWinningFill():
 	return false
 
 func aiBlock():
+	# Because of the way we setup the scoring, with the Player X having
+	# a value of one (1) .. We know that if a row has the sum of 2, then 
+	# the player has 2 positions filled and 1 position open for the win.
+	# In this case, the computer wants to block that position.
 	for idx in range(3):
 		if sumRow( idx ) == 2:
 			# Need to block
@@ -191,7 +233,7 @@ func aiBlock():
 		aiFillDiag_2()
 		return true
 	
-	false
+	return false
 
 func aiPicPoint():
 	# Checks for obvious win
@@ -216,3 +258,4 @@ func onPlayAgain():
 
 func onQuit():
 	get_tree().quit()
+
