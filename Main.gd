@@ -244,6 +244,8 @@ func aiPicPoint():
 			var row = randi() % 3
 			var col = randi() % 3
 			var valid = false
+			
+			# FIXME: This is a terrible way to do this
 			while not valid:
 				if board[row][col].value == 0:
 					valid = true
