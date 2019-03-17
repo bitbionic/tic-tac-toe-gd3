@@ -7,6 +7,9 @@ refined it after Godot 3.1 was release. This game does not use a _process loop. 
 ## Youtube overview
 I have a Youtube overview here: https://youtu.be/2yIAXi9c2ag
 
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/2yIAXi9c2ag/0.jpg)](https://www.youtube.com/watch?v=2yIAXi9c2ag)
+
+
 ## History
 When I interview software engineers for a new job, I sometimes ask them to write the logic
 for a tic tac toe game, assuming the UI is developed for them. Their task is to represent
